@@ -1,4 +1,4 @@
-'''Controller to handle user authenticatio (signup, login, logout)'''
+"""Controller to handle user authenticatio (signup, login, logout)"""
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
@@ -12,6 +12,7 @@ from marshmallow import ValidationError
 from app.models import User, TokenBlocklist
 from app.schemas import RegistrationSchema
 import logging
+
 
 auth_bp = Blueprint("auth", __name__)
 
