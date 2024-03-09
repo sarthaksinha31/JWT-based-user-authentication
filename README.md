@@ -3,7 +3,7 @@
 ## Project Overview
 The aim of this project is to create a microservice for user authentication using JSON web tokens. The project follows MVC pattern where the business logic is being handled by the controllers under app/ folder which has various handler functions to perform user authentication and CRUD operations. Inside the src/ folder there are utility functions which promotes code reusability since these functions are being used accross different controller modules.
 
-## Tech Stack:
+## Tech Stack
 - Flask
 - SQLAlchemy
 - Marshmallow
