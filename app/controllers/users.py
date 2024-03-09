@@ -1,3 +1,4 @@
+"""Controller to handle user specific operations"""
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt, current_user
 from src.utils.error_utils import RequestValidationError, UserNotFound
