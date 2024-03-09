@@ -1,0 +1,1 @@
+ADMIN_EMAIL = 'johndoe@mail.com'
