@@ -18,9 +18,10 @@ class EmailUtils:
         self.app.config['MAIL_USE_SSL']=True
         self.mail=Mail(self.app)
 
-    def send_email(self,recipient_email,content):
-        subject = content.get("subject","Notification")
-        email_body = content.get("body")
-        msg = Message(subject=subject, sender='ping2sarthak@gmail.com', recipients=[recipient_email])
+    def send_email(self,payload):
+        recipient_email = payload["recipient_email"]
+        subject = payload.get("subject","Notification")
+        email_body = payload.get("body")
+        msg = Message(subject=subject, sender=os.getenv('MAIL_USERNAME'), recipients=[recipient_email])
         msg.body = email_body
         self.mail.send(msg)

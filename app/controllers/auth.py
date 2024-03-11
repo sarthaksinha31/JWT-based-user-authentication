@@ -1,5 +1,5 @@
 """Controller to handle user authenticatio (signup, login, logout)"""
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -77,20 +77,54 @@ def login_user():
     user = User.get_user_by_email(email=user_email)
 
     if user and (user.check_password(password=password)): # Check if the user a registered user and that the password is correct
-        access_token = create_access_token(identity=user.email) # create a JWT access token
-        refresh_token = create_refresh_token(identity=user.email) # create a JWT refresh token
-
+        otp = str(randint(100000, 999999))
+        session[user_email] = otp # Store the OTP in the flask session for later retrieval during verification
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%d-%m-%Y %H:%M")
+        email_payload = {
+            "recipient_email": user_email,
+            "subject": f"OTP RECEIVED FOR LOGIN AT {formatted_datetime}",
+            "body": f"Please find your OTP: {otp}"
+        }
+        email_util.send_email(payload=email_payload) # send email to the user with the payload holding the email contents
         return (
             jsonify(
                 {
-                    "message": "Logged In",
-                    "tokens": {"access": access_token, "refresh": refresh_token},
+                    "message": "An OTP is sent over your registered email. Please check and verify!"
                 }
             ),
             200,
         )
 
     return jsonify({"error": "Invalid username or password"}), 400
+
+
+@auth_bp.post("/verify-otp")
+def verify_otp():
+    """
+    desc: Handler function for user otp verification
+    returns: Pair of JWT access and refresh tokens once the otp is validated successfully
+    """
+    data = request.get_json()
+    user_otp = data.get("otp")
+    user_email = data.get("email")
+    stored_otp = session.get(user_email) # Get the stored OTP that was saved during login
+    if stored_otp and user_otp == stored_otp:
+        access_token = create_access_token(identity=user_email)
+        refresh_token = create_refresh_token(identity=user_email)
+        # OTP verification successful
+        session.pop(user_email)  # Remove OTP from session after successful verification
+        return (
+            jsonify(
+                {
+                    "message": "Success Logged In",
+                    "tokens": {"access": access_token, "refresh": refresh_token},
+                }
+            ),
+            200,
+        )
+    else:
+        return jsonify({"message": "Invalid OTP"}), 400
 
 @auth_bp.get("/refresh")
 @jwt_required(refresh=True)
