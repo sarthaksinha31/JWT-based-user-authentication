@@ -11,6 +11,9 @@ from flask_jwt_extended import (
 from marshmallow import ValidationError
 from app.models import User, TokenBlocklist
 from app.schemas import RegistrationSchema
+from random import randint
+from src.utils.email_utils import EmailUtils
+from datetime import datetime
 import logging
 
 
@@ -19,6 +22,7 @@ auth_bp = Blueprint("auth", __name__)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+email_util = EmailUtils()
 
 def schema_error_parser(err_obj):
     """Function to parse the schema validation error details"""
@@ -46,7 +50,7 @@ def register_user():
 
     if user_email is not None:
         logging.error("User already exists!!!")
-        return jsonify({"error": f"User with email - '{user_email.email}' already exists"}),409
+        return jsonify({"error": f"User with email - '{user_email.email}' already exists. Please login"}),409
 
     new_user = User(
         firstname=data.get("firstname"),
